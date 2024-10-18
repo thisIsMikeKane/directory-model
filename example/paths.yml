@@ -1,0 +1,15 @@
+# paths.yml
+paths:
+  - name: data
+    is_dir: true
+    description: "Data directory"
+    exists: true
+    children:
+      - name: raw
+        is_dir: true
+        description: "Raw data"
+        exists: true
+config:
+  mkdir: true
+  mksymlink: false
+  strict: true  # Enable strict mode

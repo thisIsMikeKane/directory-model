@@ -1,0 +1,5 @@
+site_name: path_model
+site_author: Michael Kane
+theme: readthedocs
+nav:
+  - Home: index.md
