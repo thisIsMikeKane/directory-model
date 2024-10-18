@@ -7,3 +7,4 @@ class ConfigModel(BaseModel):
 
     mkdir: bool = True
     mksymlink: bool = True
+    strict: bool = False

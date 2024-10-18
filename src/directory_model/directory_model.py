@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from rich.tree import Tree
 from rich.console import Console
 
-from directory_model.utils import ConfigModel
+from directory_model.config import ConfigModel
 from directory_model.path_model import PathModel
 
 
@@ -15,10 +15,13 @@ class DirectoryModel(BaseModel):
     """
 
     paths: List[PathModel] = Field(
-        ..., description="List of each path object in the base directory."
+        ...,
+        description="List of each path object in the base directory."
     )
+    
     config: ConfigModel = Field(
-        default_factory=ConfigModel, description="Configuration settings for validation"
+        default_factory=ConfigModel,
+        description="Configuration settings for validation"
     )
 
     def validate_project_structure(self) -> "DirectoryModel":

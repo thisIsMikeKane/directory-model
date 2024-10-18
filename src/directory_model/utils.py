@@ -13,8 +13,6 @@ from directory_model.path_model import DirectoryModel
 
 load_dotenv()
 
-
-
 class NodeBoolModel(BaseModel):
     """
     A Pydantic model for boolean properties of nodes in a tree that can be inherited
