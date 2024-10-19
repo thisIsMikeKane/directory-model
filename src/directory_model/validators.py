@@ -9,12 +9,6 @@ if TYPE_CHECKING:
     from .path_model import PathModel
 
 
-def validate_node_bool(v) -> "NodeBoolModel":
-    from .path_model import NodeBoolModel
-
-    return NodeBoolModel(v)
-
-
 def validate_path(self) -> "PathModel":
     if not self.path:
         self.path = Path(self.name).absolute()

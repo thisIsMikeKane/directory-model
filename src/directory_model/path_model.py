@@ -1,7 +1,7 @@
 # src/path_model/models.py
 
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Union, Annotated
 
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 from rich.style import Style
@@ -10,7 +10,7 @@ from rich.tree import Tree
 from directory_model.utils import NodeBoolModel
 
 from directory_model.config import ConfigModel
-from .validators import validate_node_bool, validate_path, validate_children, validate_is_dir, validate_symlinks, validate_exists
+from .validators import validate_path, validate_children, validate_is_dir, validate_symlinks, validate_exists
 
 class PathModel(BaseModel):
     """
@@ -21,7 +21,7 @@ class PathModel(BaseModel):
         name (str): The name of the directory or file.
         is_dir (bool): Specifies if this is a directory. Validated against `Path.is_dir`.
         description (Optional[str]): Description of the directory or file.
-        exists (Optional[NodeBoolModel]): The directory/file must exist for validation to succeed.
+        exists (Union[bool, NodeBoolModel]): The directory/file must exist for validation to succeed.
         resolve (Optional[str]): Path to which this directory resolves (used for symlinks). Validated against `Path.resolve`.
         children (List["PathModel"]): Subdirectories or files within this directory.
         path (Optional[Path]): Resolved full path. Computed if None. Validated if provided.
@@ -31,43 +31,56 @@ class PathModel(BaseModel):
         build_tree(tree: rich.tree.Tree) -> None: Recursively add nodes to the tree for each directory and its children.
     """
 
-    name: str = Field(
+    name: Annotated[str, Field(
         ..., # Required
-        description="The name of the directory or file.")
+        description="The name of the directory or file.")]
     
-    is_dir: bool = Field(
+    is_dir: Annotated[bool, Field(
         default=False,
-        description="Specifies if this is a directory. Validated against `Path.is_dir`.")
+        description="Specifies if this is a directory. Validated against `Path.is_dir`.")]
     
-    description: Optional[str] = Field(
+    description: Annotated[Optional[str], Field(
         default=None,
-        description="Description of the directory or file.")
+        description="Description of the directory or file.")]
 
-    exists: Optional[NodeBoolModel] = Field(
+    exists: Annotated[Union[bool, NodeBoolModel], Field(
         default=False,
-        description="The directory/file must exist for validation to succeed.")
+        description="The directory/file must exist for validation to succeed.")]
     
-    resolve: Optional[str] = Field(
+    resolve: Annotated[Optional[str], Field(
         default=None,
-        description="Path to which this directory resolves (used for symlinks). Validated against `Path.resolve`.")
+        description="Path to which this directory resolves (used for symlinks). Validated against `Path.resolve`.")]
     
-    children: List["PathModel"] = Field(
+    children: Annotated[List["PathModel"], Field(
         default=[],
-        description="Subdirectories or files within this directory.")
+        description="Subdirectories or files within this directory.")]
     
-    path: Optional[Path] = Field(
+    path: Annotated[Optional[Path], Field(
         default=None,
-        description="Resolved full path. Computed if None. Validated if provided.")
+        description="Resolved full path. Computed if None. Validated if provided.")]
     
-    config: ConfigModel = Field(
+    config: Annotated[ConfigModel, Field(
         default_factory=ConfigModel,
         description="Configuration settings for validation"
-    )
+    )]
 
     model_config = dict(arbitrary_types_allowed=True)
 
     # Assign validators
-    exists = field_validator("exists", mode="before")(validate_node_bool)
+    @field_validator("exists", mode="before")
+    @classmethod
+    def validate_node_bool(cls, v: Union[bool, NodeBoolModel]) -> NodeBoolModel:
+        """
+        Validate the `exists` attribute to ensure it is compatible with `NodeBoolModel`.
+
+        Args:
+            v (Union[bool, NodeBoolModel]): The value to be validated.
+
+        Returns:
+            NodeBoolModel: An instance of `NodeBoolModel` representing the validated value.
+        """
+        return NodeBoolModel(v)
+
     validate_path = model_validator(mode="before")(validate_path)
     validate_children = model_validator(mode="after")(validate_children)
     validate_is_dir = model_validator(mode="after")(validate_is_dir)
