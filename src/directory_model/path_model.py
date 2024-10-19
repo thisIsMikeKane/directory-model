@@ -10,7 +10,7 @@ from rich.tree import Tree
 from directory_model.utils import NodeBoolModel
 
 from directory_model.config import ConfigModel
-from .validators import validate_path, validate_children, validate_is_dir, validate_symlinks, validate_exists
+from .validators import validate_children, validate_is_dir, validate_symlinks, validate_exists
 
 class PathModel(BaseModel):
     """
@@ -81,7 +81,23 @@ class PathModel(BaseModel):
         """
         return NodeBoolModel(v)
 
-    validate_path = model_validator(mode="before")(validate_path)
+    @model_validator(mode="before")
+    def validate_path(self) -> "PathModel":
+        """
+        Validate and set the `path` attribute to ensure it is absolute and consistent with `name`.
+
+        Returns:
+            PathModel: The validated instance of `PathModel`.
+        """
+        if not self.path:
+            self.path = Path(self.name).absolute()
+        else:
+            if not self.path.is_absolute():
+                raise ValueError(f"Expected '{self.path}' to be absolute")
+            if Path(self.name).exists() and not Path(self.name).samefile(self.path):
+                raise ValueError(f"Expected {self.name} to be the same path as {self.path}")
+        return self
+
     validate_children = model_validator(mode="after")(validate_children)
     validate_is_dir = model_validator(mode="after")(validate_is_dir)
     validate_symlinks = model_validator(mode="after")(validate_symlinks)
