@@ -3,9 +3,9 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "directory_model"
+name = "directory-model"
 version = "0.1.0"
-description = "Combines pydantic and pathlib.Path to directory contents or references against a schema with yaml."
+description = "directory_model is a Python package for both modeling and validating filesystem directory structures based on YAML schema definitions. It provides a class-based model for referencing paths, built on Python's Path package and Pydantic."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Michael Kane", email = "thisismikekane@gmail.com" }]
@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/thisismikekane/directory_model"
+"Homepage" = "https://github.com/thisismikekane/directory-model"
 
 [tool.setuptools.packages.find]
 where = ["src"]
